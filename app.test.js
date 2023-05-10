@@ -8,13 +8,34 @@ const {
   topicData,
   userData,
 } = require("./db/data/test-data/index.js");
+const express = require("express");
+app.use(express.json());
 
 afterAll(() => {
-  connection.end();
+  return connection.end();
 });
 
 beforeEach(() => {
   return seed({ articleData, commentData, topicData, userData });
+});
+
+describe("/api", () => {
+  test("GET request - status 200 responds with all endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then((response) => {
+        const parsedResult = JSON.parse(response.body.endPoints);
+        let count = 0;
+        Object.values(parsedResult).forEach((value) => {
+          count++;
+          expect(typeof value.description).toBe("string");
+          expect(Array.isArray(value.queries)).toBe(true);
+          expect(Object.keys(value.exampleResponse).length).not.toBe(0);
+        });
+        expect(Object.keys(parsedResult).length).toBe(count);
+      });
+  });
 });
 
 describe("/api/topics", () => {
