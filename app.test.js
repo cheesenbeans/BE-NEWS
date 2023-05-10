@@ -8,8 +8,6 @@ const {
   topicData,
   userData,
 } = require("./db/data/test-data/index.js");
-const express = require("express");
-app.use(express.json());
 
 afterAll(() => {
   return connection.end();
@@ -85,6 +83,47 @@ describe("/api/articles/:article_id", () => {
   test("GET request - status 404 responds due to a valid but non-existent articleId", () => {
     return request(app)
       .get("/api/articles/124714")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  test("GET request - status 200 responds with an the comments on a specific article by ID", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((response) => {
+        const comments = response.body.comments;
+        expect(comments.length).toBe(11);
+        comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(typeof comment.article_id).toBe("number");
+        });
+        expect(comments).toBeSorted({
+          key: `created_at`,
+          coerce: true,
+          descending: true,
+        });
+      });
+  });
+  test("GET request - status 400 responds due to invalid article id", () => {
+    return request(app)
+      .get("/api/articles/nonsense/comments")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+  test("GET request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+      .get("/api/articles/124714/comments")
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Not Found!");
