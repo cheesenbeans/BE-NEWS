@@ -17,20 +17,8 @@ beforeEach(() => {
   return seed({ articleData, commentData, topicData, userData });
 });
 
-app.use((err, req, res, next) => {
-  if (err.status && err.msg) {
-    res.status(err.status).send({ msg: err.msg });
-  } else {
-    next(err);
-  }
-});
-
-app.use((err, req, res, next) => {
-  res.status(500).send({ msg: "Code 500 - server error!" });
-});
-
 describe("/api/topics", () => {
-  test("GET request - status 200 responds with all the topics sorted by age", () => {
+  test("GET request - status 200 responds with all the topics", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
