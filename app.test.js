@@ -8,8 +8,7 @@ const {
   topicData,
   userData,
 } = require("./db/data/test-data/index.js");
-const express = require("express");
-app.use(express.json());
+
 
 afterAll(() => {
   return connection.end();
