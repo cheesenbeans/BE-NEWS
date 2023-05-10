@@ -3,14 +3,7 @@ const app = express();
 const { getTopics } = require("./controllers/topics.controllers");
 const { getArticles, getArticleById } = require("./controllers/articles.controllers");
 const { getApis } = require("./controllers/apis.controllers");
-const seed = require("./db/seeds/seed.js");
-const connection = require("./db/connection");
-const {
-  articleData,
-  commentData,
-  topicData,
-  userData,
-} = require("./db/data/test-data/index.js");
+
 
 app.get("/api/topics", getTopics);
 

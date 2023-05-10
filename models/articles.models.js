@@ -3,15 +3,26 @@ const { articleData } = require("../db/data/test-data");
 
 exports.getAllArticles = () => {
   let queryStr = `SELECT
-    author,
+    COUNT(comment_id) AS comment_count,
+    articles.author,
     title,
-    article_id,
+    articles.article_id,
     topic,
-    created_at,
-    votes,
+    articles.created_at,
+    articles.votes,
     article_img_url
     FROM articles
-    ORDER BY created_at
+    JOIN comments
+    ON articles.article_id=comments.article_id
+    GROUP BY
+    articles.author,
+    title,
+    articles.article_id,
+    topic,
+    articles.created_at,
+    articles.votes,
+    article_img_url
+    ORDER BY articles.created_at
     ;`;
   return connection.query(queryStr).then((result) => {
     return result.rows;

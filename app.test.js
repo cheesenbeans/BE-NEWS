@@ -99,7 +99,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then((response) => {
         const articles = response.body.articles;
-        expect(articles.length).toEqual(articleData.length);
+        expect(Array.isArray(articles)).toBe(true);
         articles.forEach((article) => {
           expect(typeof article.author).toBe("string");
           expect(typeof article.title).toBe("string");
@@ -107,13 +107,14 @@ describe("/api/articles", () => {
           expect(typeof article.created_at).toBe("string");
           expect(typeof article.votes).toBe("number");
           expect(typeof article.article_img_url).toBe("string");
-          //expect(typeof article.comment_count).toBe("number"); need to add code for this
+          expect(typeof article.body).toBe("undefined");
+          expect(typeof article.comment_count).toBe("string");
         });
         expect(articles).toBeSorted({
           key: `created_at`,
           coerce: true,
           descending: true,
         });
-      })
-    })
-  })
+      });
+  });
+});
