@@ -1,7 +1,7 @@
-const {getAllTopics} = require("../models/topics.models")
+const { getAllTopics } = require("../models/topics.models");
 
 exports.getTopics = (request, response, next) => {
-  getAllTopics() 
+  getAllTopics()
     .then((topics) => {
       response.status(200).send({ topics: topics });
     })
