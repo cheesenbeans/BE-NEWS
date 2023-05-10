@@ -1,14 +1,8 @@
 const connection = require("../db/connection");
 const fs = require("fs/promises");
 
-exports.postAllApis = () => {
+exports.getAllApis = () => {
   return fs.readFile(`./endpoints.json`, "utf8").then((result) => {
-    const parsedEndpoints = JSON.parse(result);
-    return parsedEndpoints;
+    return result;
   });
-};
-
-exports.getAllApis = (parsedEndpoints) => {
-  const jsonEndpoints = parsedEndpoints;
-  return jsonEndpoints;
 };
