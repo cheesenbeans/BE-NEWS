@@ -136,7 +136,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(typeof comment.created_at).toBe("string");
       });
   });
-  test("POST request status 400 responds with error status and message invalid restaurant ", () => {
+  test("POST request status 400 responds with error status and message invalid article ", () => {
     return request(app)
       .post("/api/articles/3/comments")
       .expect(400)
@@ -149,26 +149,26 @@ describe("/api/articles/:article_id/comments", () => {
   });
   test("POST request - status 400 responds due to invalid article id", () => {
     return request(app)
-    .post("/api/articles/nonsense/comments")
-    .expect(400)
-    .send({
-      username: "rogersop",
-      body: "This is a test comment!",
-    })
-    .then((response) => {
-      expect(response.body.msg).toBe("Bad Request");
-    });
+      .post("/api/articles/nonsense/comments")
+      .expect(400)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
   });
   test("POST request - status 404 responds due to a valid but non-existent articleId", () => {
     return request(app)
-    .post("/api/articles/100/comments")
-    .expect(404)
-    .send({
-      username: "rogersop",
-      body: "This is a test comment!",
-    })
-    .then((response) => {
-      expect(response.body.msg).toBe("Article Not Found!");
-    });
+      .post("/api/articles/100/comments")
+      .expect(404)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Article Not Found!");
+      });
   });
 });
