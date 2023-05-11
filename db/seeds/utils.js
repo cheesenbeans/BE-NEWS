@@ -1,3 +1,5 @@
+const connection = require("../connection");
+
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };
   return { created_at: new Date(created_at), ...otherProperties };
@@ -18,5 +20,19 @@ exports.formatComments = (comments, idLookup) => {
       author: created_by,
       ...this.convertTimestampToDate(restOfComment),
     };
+  });
+};
+
+exports.checkUserExists = (username) => {
+  const queryStr = `
+  SELECT *
+  FROM users
+  WHERE username=$1
+  `;
+  return connection.query(queryStr, [username]).then((result) => {
+    console.log(result.rows)
+    if(result.rows.length===0){
+      return Promise.reject({status: 404, msg: "User Not Found!"})
+    }
   });
 };

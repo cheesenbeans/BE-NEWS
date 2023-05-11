@@ -171,4 +171,16 @@ describe("/api/articles/:article_id/comments", () => {
         expect(response.body.msg).toBe("Article Not Found!");
       });
   });
+  test.only("POST request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .expect(404)
+      .send({
+        username: "chris",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("User Not Found!");
+      });
+  });
 });
