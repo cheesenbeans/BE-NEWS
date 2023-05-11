@@ -70,5 +70,16 @@
         }
       ]
     }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "adds the number of votes given to the article by ID",
+    "queries": [":article_id"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "votes": 10
+        }
+      ]
+    }
   }
 }

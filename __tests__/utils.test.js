@@ -2,7 +2,24 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
+  getVotes,
 } = require("../db/seeds/utils");
+const seed = require("../db/seeds/seed.js");
+const connection = require("../db/connection");
+const {
+  articleData,
+  commentData,
+  topicData,
+  userData,
+} = require("../db/data/test-data/index.js");
+
+afterAll(() => {
+  return connection.end();
+});
+
+beforeEach(() => {
+  return seed({ articleData, commentData, topicData, userData });
+});
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -100,5 +117,14 @@ describe("formatComments", () => {
     const comments = [{ created_at: timestamp }];
     const formattedComments = formatComments(comments, {});
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
+  });
+});
+
+describe("getVotes", () => {
+  test("if article is in database function returns the correct number", () => {
+    return getVotes(2).then((result) => {
+      expect(typeof result).toBe("number");
+      expect(result).toBe(0);
+    });
   });
 });

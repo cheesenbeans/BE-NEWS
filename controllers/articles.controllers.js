@@ -2,6 +2,7 @@ const {
   getArticle,
   getCommentsByArticle,
   getAllArticles,
+  patchVotes,
 } = require("../models/articles.models");
 
 exports.getArticles = (request, response, next) => {
@@ -26,6 +27,19 @@ exports.getCommentsByArticleId = (request, response, next) => {
   getCommentsByArticle(articleId)
     .then((comments) => {
       response.status(200).send({ comments: comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.patchArticleWithVotes = (request, response, next) => {
+
+  const votes = request.body.inc_votes;
+  const articleId = request.params.article_id;
+  patchVotes(articleId, votes)
+    .then((article) => {
+      response.status(200).send({ article });
     })
     .catch((err) => {
       next(err);

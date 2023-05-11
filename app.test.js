@@ -9,7 +9,6 @@ const {
   userData,
 } = require("./db/data/test-data/index.js");
 
-
 afterAll(() => {
   return connection.end();
 });
@@ -89,6 +88,52 @@ describe("/api/articles/:article_id", () => {
         expect(response.body.msg).toBe("Not Found!");
       });
   });
+  test("PATCH request - status 200 - patches updated votes onto the article and responds with the article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .expect(200)
+      .send({
+        inc_votes: -100,
+      })
+      .then((result) => {
+        const article = result.body.article;
+        expect(article.author).toBe("butter_bridge");
+        expect(article.title).toBe("Living in the shadow of a great man");
+        expect(article.body).toBe("I find this existence challenging");
+        expect(article.topic).toBe("mitch");
+        expect(Date.parse(article.created_at)).toEqual(
+          1594329060000 - 60 * 60 * 1000
+        );
+        expect(article.votes).toBe(0);
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("PATCH request - status code 400 - invalid article id", () => {
+    return request(app)
+      .patch(`/api/articles/hello`)
+      .expect(400)
+      .send({
+        inc_votes: 10,
+      })
+      .then((result) => {
+        const article = result.body;
+        expect(article.msg).toBe("Bad Request");
+      });
+  });
+  test("PATCH request - status code 404 - invalid article id", () => {
+    return request(app)
+      .patch(`/api/articles/23141`)
+      .expect(404)
+      .send({
+        inc_votes: 10,
+      })
+      .then((result) => {
+        const article = result.body;
+        expect(article.msg).toBe("Not Found!");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
@@ -108,14 +153,13 @@ describe("/api/articles/:article_id/comments", () => {
           expect(typeof comment.article_id).toBe("number");
         });
         expect(comments).toBeSorted({
-
           key: `created_at`,
           coerce: true,
           descending: true,
         });
       });
-  })
-})
+  });
+});
 
 describe("/api/articles", () => {
   test("GET request - status 200 responds with all the articles sorted by date in descending order", () => {
