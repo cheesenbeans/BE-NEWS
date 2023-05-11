@@ -1,4 +1,11 @@
+const { getAllArticles } = require("../models/articles.models");
 const { getArticle } = require("../models/articles.models");
+
+exports.getArticles = (request, response, next) => {
+  getAllArticles().then((articles) => {
+    response.status(200).send({ articles });
+  });
+};
 
 exports.getArticleById = (request, response, next) => {
   const articleId = request.params.article_id;

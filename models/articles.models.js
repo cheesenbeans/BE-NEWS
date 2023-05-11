@@ -1,6 +1,34 @@
 const connection = require("../db/connection");
 const { articleData } = require("../db/data/test-data");
 
+exports.getAllArticles = () => {
+  let queryStr = `SELECT
+    COUNT(comment_id) AS comment_count,
+    articles.author,
+    title,
+    articles.article_id,
+    topic,
+    articles.created_at,
+    articles.votes,
+    article_img_url
+    FROM articles
+    JOIN comments
+    ON articles.article_id=comments.article_id
+    GROUP BY
+    articles.author,
+    title,
+    articles.article_id,
+    topic,
+    articles.created_at,
+    articles.votes,
+    article_img_url
+    ORDER BY articles.created_at
+    ;`;
+  return connection.query(queryStr).then((result) => {
+    return result.rows;
+  });
+};
+
 exports.getArticle = (articleId) => {
   const articleIdArray = [articleId];
   let queryStr = `SELECT * FROM articles WHERE article_id=$1`;
