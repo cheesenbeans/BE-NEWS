@@ -66,7 +66,7 @@ describe("/api/articles/:article_id", () => {
         expect(article.topic).toBe("mitch");
         expect(Date.parse(article.created_at)).toEqual(
           1594329060000 - 60 * 60 * 1000
-        ); //needs to change one hour for BST daylight saving
+        );
         expect(article.votes).toBe(100);
         expect(article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
@@ -91,6 +91,32 @@ describe("/api/articles/:article_id", () => {
   });
 });
 
+describe("/api/articles/:article_id/comments", () => {
+  test("GET request - status 200 responds with an the comments on a specific article by ID", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((response) => {
+        const comments = response.body.comments;
+        expect(comments.length).toBe(11);
+        comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(typeof comment.article_id).toBe("number");
+        });
+        expect(comments).toBeSorted({
+
+          key: `created_at`,
+          coerce: true,
+          descending: true,
+        });
+      });
+  })
+})
+
 describe("/api/articles", () => {
   test("GET request - status 200 responds with all the articles sorted by date in descending order", () => {
     return request(app)
@@ -114,6 +140,22 @@ describe("/api/articles", () => {
           coerce: true,
           descending: true,
         });
+      });
+  });
+  test("GET request - status 400 responds due to invalid article id", () => {
+    return request(app)
+      .get("/api/articles/nonsense/comments")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+  test("GET request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+      .get("/api/articles/124714/comments")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
       });
   });
 });
