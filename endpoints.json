@@ -74,6 +74,10 @@
   "POST /api/articles/:article_id/comments": {
     "description": "post and then return an object of the comment to the requested article by ID",
     "queries": [":article_id"],
+    "exampleSend": {
+      "username": "rogersop",
+      "body": "This is a test comment!"
+    },
     "exampleResponse": {
       "comments": [
         {
