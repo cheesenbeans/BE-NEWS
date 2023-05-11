@@ -29,7 +29,7 @@ describe("/api", () => {
           count++;
           expect(typeof value.description).toBe("string");
           expect(Array.isArray(value.queries)).toBe(true);
-          expect(Object.keys(value.exampleResponse).length).not.toBe(0);
+          expect(typeof value.exampleResponse).toBe("object");
         });
         expect(Object.keys(parsedResult).length).toBe(count);
       });
@@ -174,3 +174,37 @@ describe("/api/users", () => {
       });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  test("DELETE request - status 204 - deletes the comment by comment id, nothing returned", () => {
+    return request(app)
+      .delete(`/api/comments/8`)
+      .expect(204)
+      .then(() => {
+        return connection.query(`SELECT * FROM comments;`);
+      })
+      .then((result) => {
+        expect(result.rows.length).toBe(17);
+        const comments = result.rows
+        comments.forEach((comment)=> {
+          expect(comment.comment_id).not.toBe(8)
+        })
+      });
+  })
+  test("DELETE request - status 400 - bad request", () => {
+    return request(app)
+      .delete(`/api/comments/hello`)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  })
+  test("DELETE request - status 404 - comment does not exist", () => {
+    return request(app)
+      .delete(`/api/comments/3424`)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment_ID Not Found!");
+      });
+  })
+})
