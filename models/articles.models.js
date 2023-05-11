@@ -39,3 +39,19 @@ exports.getArticle = (articleId) => {
     return result.rows[0];
   });
 };
+
+exports.postComment = (newComment, articleId) => {
+  const newCommentQuery = `
+  INSERT INTO comments (body, author, article_id) 
+  VALUES ($1, $2, $3) 
+  RETURNING *`;
+  return connection
+    .query(newCommentQuery, [
+      newComment.body,
+      newComment.username,
+      articleId.article_id,
+    ])
+    .then((result) => {
+      return result.rows[0];
+    });
+};

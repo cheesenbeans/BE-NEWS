@@ -9,7 +9,6 @@ const {
   userData,
 } = require("./db/data/test-data/index.js");
 
-
 afterAll(() => {
   return connection.end();
 });
@@ -66,7 +65,7 @@ describe("/api/articles/:article_id", () => {
         expect(article.topic).toBe("mitch");
         expect(Date.parse(article.created_at)).toEqual(
           1594329060000 - 60 * 60 * 1000
-        ); //needs to change one hour for BST daylight saving
+        );
         expect(article.votes).toBe(100);
         expect(article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
@@ -115,5 +114,61 @@ describe("/api/articles", () => {
           descending: true,
         });
       });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  test("POST request - status 201 responds with a new comment ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(201)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        const { comment } = response.body;
+        expect(comment.comment_id).toBe(19);
+        expect(comment.body).toBe("This is a test comment!");
+        expect(comment.votes).toBe(0);
+        expect(comment.author).toBe("rogersop");
+        expect(comment.article_id).toBe(3);
+        expect(typeof comment.created_at).toBe("string");
+      });
+  });
+  test("POST request status 400 responds with error status and message invalid restaurant ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(400)
+      .send({
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid Post Request");
+      });
+  });
+  test("POST request - status 400 responds due to invalid article id", () => {
+    return request(app)
+    .post("/api/articles/nonsense/comments")
+    .expect(400)
+    .send({
+      username: "rogersop",
+      body: "This is a test comment!",
+    })
+    .then((response) => {
+      expect(response.body.msg).toBe("Bad Request");
+    });
+  });
+  test("POST request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+    .post("/api/articles/100/comments")
+    .expect(404)
+    .send({
+      username: "rogersop",
+      body: "This is a test comment!",
+    })
+    .then((response) => {
+      expect(response.body.msg).toBe("Article Not Found!");
+    });
   });
 });
