@@ -9,7 +9,6 @@ const {
   userData,
 } = require("./db/data/test-data/index.js");
 
-
 afterAll(() => {
   return connection.end();
 });
@@ -108,14 +107,13 @@ describe("/api/articles/:article_id/comments", () => {
           expect(typeof comment.article_id).toBe("number");
         });
         expect(comments).toBeSorted({
-
           key: `created_at`,
           coerce: true,
           descending: true,
         });
       });
-  })
-})
+  });
+});
 
 describe("/api/articles", () => {
   test("GET request - status 200 responds with all the articles sorted by date in descending order", () => {
@@ -156,6 +154,23 @@ describe("/api/articles", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+});
+
+describe("/api/users", () => {
+  test("GET request - status 200 responds with all the users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const users = response.body.users;
+        expect(users.length).toEqual(userData.length);
+        users.forEach((user) => {
+          expect(typeof user.username).toEqual("string");
+          expect(typeof user.name).toEqual("string");
+          expect(typeof user.avatar_url).toEqual("string");
+        });
       });
   });
 });
