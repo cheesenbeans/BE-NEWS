@@ -24,15 +24,16 @@ exports.formatComments = (comments, idLookup) => {
 };
 
 exports.checkUserExists = (username) => {
-  const queryStr = `
+  if (username) {
+    const queryStr = `
   SELECT *
   FROM users
   WHERE username=$1
   `;
-  return connection.query(queryStr, [username]).then((result) => {
-    console.log(result.rows)
-    if(result.rows.length===0){
-      return Promise.reject({status: 404, msg: "User Not Found!"})
-    }
-  });
+    return connection.query(queryStr, [username]).then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "User Not Found!" });
+      }
+    });
+  }
 };
