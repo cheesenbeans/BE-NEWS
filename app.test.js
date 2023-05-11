@@ -188,10 +188,10 @@ describe("/api/articles/:article_id/comments", () => {
         body: "This is a test comment!",
       })
       .then((response) => {
-        expect(response.body.msg).toBe("Article Not Found!");
+        expect(response.body.msg).toBe("Not Found!");
       });
   });
-  test("POST request - status 404 responds due to a valid but non-existent articleId", () => {
+  test("POST request - status 404 responds due to a valid but non-existent username", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .expect(404)
@@ -200,7 +200,7 @@ describe("/api/articles/:article_id/comments", () => {
         body: "This is a test comment!",
       })
       .then((response) => {
-        expect(response.body.msg).toBe("User Not Found!");
+        expect(response.body.msg).toBe("Not Found!");
       });
   });
 });

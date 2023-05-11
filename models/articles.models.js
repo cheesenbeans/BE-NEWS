@@ -42,7 +42,6 @@ exports.getArticle = (articleId) => {
 };
 
 exports.postComment = (newComment, articleId) => {
-  return checkUserExists(newComment.username).then(()=>{
     const newCommentQuery = `
   INSERT INTO comments (body, author, article_id) 
   VALUES ($1, $2, $3) 
@@ -56,5 +55,5 @@ exports.postComment = (newComment, articleId) => {
     .then((result) => {
       return result.rows[0];
     });
-  })
+  //})
 };
