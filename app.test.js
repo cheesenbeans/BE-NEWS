@@ -65,7 +65,7 @@ describe("/api/articles/:article_id", () => {
         expect(article.topic).toBe("mitch");
         expect(Date.parse(article.created_at)).toEqual(
           1594329060000 - 60 * 60 * 1000
-        ); //needs to change one hour for BST daylight saving
+        );
         expect(article.votes).toBe(100);
         expect(article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
