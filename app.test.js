@@ -88,6 +88,64 @@ describe("/api/articles/:article_id", () => {
         expect(response.body.msg).toBe("Not Found!");
       });
   });
+  test("PATCH request - status 200 - patches updated votes onto the article and responds with the article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .expect(200)
+      .send({
+        inc_votes: -100,
+      })
+      .then((result) => {
+        const article = result.body.article;
+        expect(article.author).toBe("butter_bridge");
+        expect(article.title).toBe("Living in the shadow of a great man");
+        expect(article.body).toBe("I find this existence challenging");
+        expect(article.topic).toBe("mitch");
+        expect(Date.parse(article.created_at)).toEqual(
+          1594329060000 - 60 * 60 * 1000
+        );
+        expect(article.votes).toBe(0);
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("PATCH request - status code 400 - non-existent article id", () => {
+    return request(app)
+      .patch(`/api/articles/hello`)
+      .expect(400)
+      .send({
+        inc_votes: 10,
+      })
+      .then((result) => {
+        const article = result.body;
+        expect(article.msg).toBe("Bad Request");
+      });
+  });
+  test("PATCH request - status code 404 - invalid article id", () => {
+    return request(app)
+      .patch(`/api/articles/23141`)
+      .expect(404)
+      .send({
+        inc_votes: 10,
+      })
+      .then((result) => {
+        const article = result.body;
+        expect(article.msg).toBe("Not Found!");
+      });
+  });
+  test("PATCH request - status code 400 - inc_votes is not a number", () => {
+    return request(app)
+      .patch(`/api/articles/2`)
+      .expect(400)
+      .send({
+        inc_votes: "hello",
+      })
+      .then((result) => {
+        const article = result.body;
+        expect(article.msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {

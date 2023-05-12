@@ -1,5 +1,6 @@
 const connection = require("../db/connection");
 const { articleData } = require("../db/data/test-data");
+const { getVotesIfArticleExists } = require("../db/seeds/utils");
 const { checkUserExists, checkTopicExists } = require("../db/seeds/utils");
 
 exports.getAllArticles = (topic, sort_by = "created_at", order = "desc") => {
@@ -98,5 +99,20 @@ exports.getCommentsByArticle = (articleId) => {
       return Promise.reject({ status: 404, msg: "Not Found!" });
     }
     return result.rows;
+  });
+};
+
+exports.patchVotes = (articleId, votes) => {
+  return getVotesIfArticleExists(articleId)
+  .then((currentVotes) => {
+    const queryStr = `
+      UPDATE articles
+      SET votes = $1
+      WHERE article_id = $2
+      RETURNING *
+      ;`;
+    return connection.query(queryStr, [(votes+currentVotes), articleId]).then((result) => {
+      return result.rows[0];
+    });
   });
 };

@@ -2,7 +2,13 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
+  getVotesIfArticleExists,
 } = require("../db/seeds/utils");
+const connection = require("../db/connection");
+
+afterAll(() => {
+  return connection.end();
+});
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -100,5 +106,14 @@ describe("formatComments", () => {
     const comments = [{ created_at: timestamp }];
     const formattedComments = formatComments(comments, {});
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
+  });
+});
+
+describe("getVotesIfArticleExists", () => {
+  test("if article is in database function returns the correct number", () => {
+    return getVotesIfArticleExists(2).then((result) => {
+      expect(typeof result).toBe("number");
+      expect(result).toBe(0);
+    });
   });
 });

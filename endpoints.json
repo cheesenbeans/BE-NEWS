@@ -71,6 +71,17 @@
       ]
     }
   },
+  "PATCH /api/articles/:article_id": {
+    "description": "adds the number of votes given to the article by ID",
+    "queries": [":article_id"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "votes": 10
+        }
+      ]
+    }
+  },
   "POST /api/articles/:article_id/comments": {
     "description": "post and then return an object of the comment to the requested article by ID",
     "queries": [":article_id"],
