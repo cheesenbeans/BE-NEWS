@@ -156,6 +156,81 @@ describe("/api/articles", () => {
         expect(response.body.msg).toBe("Not Found!");
       });
   });
+  test("GET request - status 200 responds with query just containing articles with a certain topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles.length).toBe(1);
+        result.body.articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+  test("GET request - status 404 responds to a topic not found", () => {
+    return request(app)
+      .get("/api/articles?topic=whatever")
+      .expect(404)
+      .then((result) => {
+        expect(result.body.msg).toBe("Topic Not Found!");
+      });
+  });
+  test("GET request - status 200 responds to a topic is valid but there are no entries", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toEqual([]);
+      });
+  });
+  test("GET request - status 200 responds to a topic is valid but there are no entries", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "author", descending: true });
+      });
+  });
+  test("GET request - status 200 responds with a default sort_by of date", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "created_at", descending: true });
+      });
+  });
+  test("GET request - status 400 responds to an invalid topic", () => {
+    return request(app)
+      .get("/api/articles?sort_by=whatever")
+      .expect(400)
+      .then((result) => {
+        expect(result.body.msg).toBe("Invalid Sort Query!");
+      });
+  });
+  test("GET request - status 200 responds to a valid sort_by and the order is asc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=asc")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "author", descending: false });
+      });
+  });
+  test("GET request - status 200 responds to a valid sort_by and defaults to descending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "author", descending: true });
+      });
+  });
+  test("GET request - status 400 responds to a valid sort_by but an invalid order query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=whatever")
+      .expect(400)
+      .then((result) => {
+        expect(result.body.msg).toEqual("Invalid Order Query!");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
@@ -272,12 +347,12 @@ describe("/api/comments/:comment_id", () => {
       })
       .then((result) => {
         expect(result.rows.length).toBe(17);
-        const comments = result.rows
-        comments.forEach((comment)=> {
-          expect(comment.comment_id).not.toBe(8)
-        })
+        const comments = result.rows;
+        comments.forEach((comment) => {
+          expect(comment.comment_id).not.toBe(8);
+        });
       });
-  })
+  });
   test("DELETE request - status 400 - bad request", () => {
     return request(app)
       .delete(`/api/comments/hello`)
@@ -285,7 +360,7 @@ describe("/api/comments/:comment_id", () => {
       .then((response) => {
         expect(response.body.msg).toBe("Bad Request");
       });
-  })
+  });
   test("DELETE request - status 404 - comment does not exist", () => {
     return request(app)
       .delete(`/api/comments/3424`)
@@ -293,5 +368,5 @@ describe("/api/comments/:comment_id", () => {
       .then((response) => {
         expect(response.body.msg).toBe("Comment_ID Not Found!");
       });
-  })
-})
+  });
+});
