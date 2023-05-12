@@ -23,6 +23,21 @@ exports.formatComments = (comments, idLookup) => {
   });
 };
 
+exports.checkUserExists = (username) => {
+  if (username) {
+    const queryStr = `
+  SELECT *
+  FROM users
+  WHERE username=$1
+  `;
+    return connection.query(queryStr, [username]).then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "User Not Found!" });
+      }
+    });
+  }
+}
+
 exports.doesCommentExist = (comment_id) => {
   const queryStr = `SELECT * FROM comments WHERE comment_id=$1;`;
   return connection.query(queryStr, [comment_id])

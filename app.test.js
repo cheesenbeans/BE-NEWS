@@ -158,6 +158,93 @@ describe("/api/articles", () => {
   });
 });
 
+describe("/api/articles/:article_id/comments", () => {
+  test("POST request - status 201 responds with a new comment ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(201)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        const { comment } = response.body;
+        expect(comment.comment_id).toBe(19);
+        expect(comment.body).toBe("This is a test comment!");
+        expect(comment.votes).toBe(0);
+        expect(comment.author).toBe("rogersop");
+        expect(comment.article_id).toBe(3);
+        expect(typeof comment.created_at).toBe("string");
+      });
+  });
+  test("POST request - status 201 responds with a new comment and ignores all unnecessary properties. In this test votes and comment_id are unnecessary ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(201)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+        comment_id: 4,
+        votes: 5,
+      })
+      .then((response) => {
+        const { comment } = response.body;
+        expect(comment.comment_id).toBe(19);
+        expect(comment.body).toBe("This is a test comment!");
+        expect(comment.votes).toBe(0);
+        expect(comment.author).toBe("rogersop");
+        expect(comment.article_id).toBe(3);
+        expect(typeof comment.created_at).toBe("string");
+      });
+  });
+  test("POST request status 400 responds with error status and message invalid post request (no body) ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(400)
+      .send({
+        username: "rogersop",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid Post Request");
+      });
+  });
+  test("POST request - status 400 responds due to invalid article id", () => {
+    return request(app)
+      .post("/api/articles/nonsense/comments")
+      .expect(400)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+  test("POST request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+      .post("/api/articles/100/comments")
+      .expect(404)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+  test("POST request - status 404 responds due to a valid but non-existent username", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .expect(404)
+      .send({
+        username: "chris",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+});
 describe("/api/users", () => {
   test("GET request - status 200 responds with all the users", () => {
     return request(app)

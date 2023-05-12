@@ -1,5 +1,6 @@
 const connection = require("../db/connection");
 const { articleData } = require("../db/data/test-data");
+const { checkUserExists} = require("../db/seeds/utils");
 
 exports.getAllArticles = () => {
   let queryStr = `SELECT
@@ -40,6 +41,22 @@ exports.getArticle = (articleId) => {
   });
 };
 
+exports.postComment = (newComment, articleId) => {
+    const newCommentQuery = `
+  INSERT INTO comments (body, author, article_id) 
+  VALUES ($1, $2, $3) 
+  RETURNING *`;
+  return connection
+    .query(newCommentQuery, [
+      newComment.body,
+      newComment.username,
+      articleId.article_id,
+    ])
+    .then((result) => {
+      return result.rows[0];
+    });
+  }
+  
 exports.getCommentsByArticle = (articleId) => {
   const articleIdArray = [articleId];
   let queryStr = `SELECT * FROM comments WHERE article_id=$1`;
