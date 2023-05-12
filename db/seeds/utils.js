@@ -23,7 +23,7 @@ exports.formatComments = (comments, idLookup) => {
   });
 };
 
-exports.getVotes = (articleId) => {
+exports.getVotesIfArticleExists = (articleId) => {
   const queryStr = `SELECT* FROM articles WHERE article_id = $1;`
   return connection
     .query(queryStr, [articleId])

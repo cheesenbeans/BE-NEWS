@@ -1,6 +1,6 @@
 const connection = require("../db/connection");
 const { articleData } = require("../db/data/test-data");
-const { getVotes } = require("../db/seeds/utils");
+const { getVotesIfArticleExists } = require("../db/seeds/utils");
 
 exports.getAllArticles = () => {
   let queryStr = `SELECT
@@ -53,7 +53,7 @@ exports.getCommentsByArticle = (articleId) => {
 };
 
 exports.patchVotes = (articleId, votes) => {
-  return getVotes(articleId)
+  return getVotesIfArticleExists(articleId)
   .then((currentVotes) => {
     const queryStr = `
       UPDATE articles

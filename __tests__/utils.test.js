@@ -2,23 +2,12 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
-  getVotes,
+  getVotesIfArticleExists,
 } = require("../db/seeds/utils");
-const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection");
-const {
-  articleData,
-  commentData,
-  topicData,
-  userData,
-} = require("../db/data/test-data/index.js");
 
 afterAll(() => {
   return connection.end();
-});
-
-beforeEach(() => {
-  return seed({ articleData, commentData, topicData, userData });
 });
 
 describe("convertTimestampToDate", () => {
@@ -120,9 +109,9 @@ describe("formatComments", () => {
   });
 });
 
-describe("getVotes", () => {
+describe("getVotesIfArticleExists", () => {
   test("if article is in database function returns the correct number", () => {
-    return getVotes(2).then((result) => {
+    return getVotesIfArticleExists(2).then((result) => {
       expect(typeof result).toBe("number");
       expect(result).toBe(0);
     });

@@ -110,7 +110,7 @@ describe("/api/articles/:article_id", () => {
         );
       });
   });
-  test("PATCH request - status code 400 - invalid article id", () => {
+  test("PATCH request - status code 400 - non-existent article id", () => {
     return request(app)
       .patch(`/api/articles/hello`)
       .expect(400)
@@ -132,6 +132,18 @@ describe("/api/articles/:article_id", () => {
       .then((result) => {
         const article = result.body;
         expect(article.msg).toBe("Not Found!");
+      });
+  });
+  test("PATCH request - status code 400 - inc_votes is not a number", () => {
+    return request(app)
+      .patch(`/api/articles/2`)
+      .expect(400)
+      .send({
+        inc_votes: "hello",
+      })
+      .then((result) => {
+        const article = result.body;
+        expect(article.msg).toBe("Bad Request");
       });
   });
 });
