@@ -6,8 +6,12 @@ const {
 } = require("../models/articles.models");
 
 exports.getArticles = (request, response, next) => {
-  getAllArticles().then((articles) => {
+  const { topic, sort_by, order } = request.query
+  getAllArticles(topic, sort_by, order).then((articles) => {
     response.status(200).send({ articles });
+  })
+  .catch((err) => {
+    next(err);
   });
 };
 

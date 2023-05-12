@@ -47,3 +47,17 @@ exports.doesCommentExist = (comment_id) => {
     }
   });
 };
+
+exports.checkTopicExists = (topic) => {
+    const queryStr = `
+  SELECT *
+  FROM topics
+  WHERE slug=$1
+  `;
+    return connection.query(queryStr, [topic]).then((result) => {
+      if (result.rows.length === 0 && topic) {
+        return Promise.reject({ status: 404, msg: "Topic Not Found!" });
+      }
+    });
+  }
+
