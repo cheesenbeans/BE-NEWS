@@ -32,7 +32,13 @@ PGDATABASE=postgres://heoriork:LJV3df5-TaYTAsGOqbdIHcaXaWYoA7mn@dumbo.db.elephan
 
 4. Double Check that these are added in a .gitignore file
 
-5. run `npm install` but do not install any other specific packages at this point
+5.a. run `npm install` .  This must install v as the minimum version of node.js for this project
+
+5.b. run `npm install pg` .  This must install v as the minimum version of node postgres for this project.
+
+5.c. run `npm install pg-format`.
+
+5.d. run `npm install dotenv`.
 
 6. Update the scripts in the package json as follows :
 
@@ -47,11 +53,28 @@ PGDATABASE=postgres://heoriork:LJV3df5-TaYTAsGOqbdIHcaXaWYoA7mn@dumbo.db.elephan
 
     npm run setup-dbs
 
-8. We can then seed the data into the databases by running the following code.  
+8. The `seed` script provided for you in the `package.json` will run the `seed` function with the dev data.
 
     npm run seed
 
-It will DROP ALL EXISTING TABLES, CREATE ALL TABLES and populate those tables with data.  The structures will look like the following:
+It will DROP ALL EXISTING TABLES, CREATE ALL TABLES and populate those tables with data. 
 
 
+
+in order to run tests you must install 
+
+npm install express
+
+
+npm install -D jest
+npm install -D supertest
+
+npm install -D jest-sorted
+and ensure the package.json has the key
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-extended/all",
+      "jest-sorted"
+    ]
+  }
 
