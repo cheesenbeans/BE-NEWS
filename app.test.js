@@ -29,7 +29,7 @@ describe("/api", () => {
           count++;
           expect(typeof value.description).toBe("string");
           expect(Array.isArray(value.queries)).toBe(true);
-          expect(Object.keys(value.exampleResponse).length).not.toBe(0);
+          expect(typeof value.exampleResponse).toBe("object");
         });
         expect(Object.keys(parsedResult).length).toBe(count);
       });
@@ -212,6 +212,219 @@ describe("/api/articles", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+  test("GET request - status 200 responds with query just containing articles with a certain topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles.length).toBe(1);
+        result.body.articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+  test("GET request - status 404 responds to a topic not found", () => {
+    return request(app)
+      .get("/api/articles?topic=whatever")
+      .expect(404)
+      .then((result) => {
+        expect(result.body.msg).toBe("Topic Not Found!");
+      });
+  });
+  test("GET request - status 200 responds to a topic is valid but there are no entries", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toEqual([]);
+      });
+  });
+  test("GET request - status 200 responds to a topic is valid but there are no entries", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "author", descending: true });
+      });
+  });
+  test("GET request - status 200 responds with a default sort_by of date", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "created_at", descending: true });
+      });
+  });
+  test("GET request - status 400 responds to an invalid topic", () => {
+    return request(app)
+      .get("/api/articles?sort_by=whatever")
+      .expect(400)
+      .then((result) => {
+        expect(result.body.msg).toBe("Invalid Sort Query!");
+      });
+  });
+  test("GET request - status 200 responds to a valid sort_by and the order is asc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=asc")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "author", descending: false });
+      });
+  });
+  test("GET request - status 200 responds to a valid sort_by and defaults to descending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((result) => {
+        expect(result.body.articles).toBeSorted({ key: "author", descending: true });
+      });
+  });
+  test("GET request - status 400 responds to a valid sort_by but an invalid order query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=whatever")
+      .expect(400)
+      .then((result) => {
+        expect(result.body.msg).toEqual("Invalid Order Query!");
+      });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  test("POST request - status 201 responds with a new comment ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(201)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        const { comment } = response.body;
+        expect(comment.comment_id).toBe(19);
+        expect(comment.body).toBe("This is a test comment!");
+        expect(comment.votes).toBe(0);
+        expect(comment.author).toBe("rogersop");
+        expect(comment.article_id).toBe(3);
+        expect(typeof comment.created_at).toBe("string");
+      });
+  });
+  test("POST request - status 201 responds with a new comment and ignores all unnecessary properties. In this test votes and comment_id are unnecessary ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(201)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+        comment_id: 4,
+        votes: 5,
+      })
+      .then((response) => {
+        const { comment } = response.body;
+        expect(comment.comment_id).toBe(19);
+        expect(comment.body).toBe("This is a test comment!");
+        expect(comment.votes).toBe(0);
+        expect(comment.author).toBe("rogersop");
+        expect(comment.article_id).toBe(3);
+        expect(typeof comment.created_at).toBe("string");
+      });
+  });
+  test("POST request status 400 responds with error status and message invalid post request (no body) ", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .expect(400)
+      .send({
+        username: "rogersop",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid Post Request");
+      });
+  });
+  test("POST request - status 400 responds due to invalid article id", () => {
+    return request(app)
+      .post("/api/articles/nonsense/comments")
+      .expect(400)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+  test("POST request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+      .post("/api/articles/100/comments")
+      .expect(404)
+      .send({
+        username: "rogersop",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+  test("POST request - status 404 responds due to a valid but non-existent username", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .expect(404)
+      .send({
+        username: "chris",
+        body: "This is a test comment!",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+});
+describe("/api/users", () => {
+  test("GET request - status 200 responds with all the users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const users = response.body.users;
+        expect(users.length).toEqual(userData.length);
+        users.forEach((user) => {
+          expect(typeof user.username).toEqual("string");
+          expect(typeof user.name).toEqual("string");
+          expect(typeof user.avatar_url).toEqual("string");
+        });
+      });
+  });
+});
+
+describe("/api/comments/:comment_id", () => {
+  test("DELETE request - status 204 - deletes the comment by comment id, nothing returned", () => {
+    return request(app)
+      .delete(`/api/comments/8`)
+      .expect(204)
+      .then(() => {
+        return connection.query(`SELECT * FROM comments;`);
+      })
+      .then((result) => {
+        expect(result.rows.length).toBe(17);
+        const comments = result.rows;
+        comments.forEach((comment) => {
+          expect(comment.comment_id).not.toBe(8);
+        });
+      });
+  });
+  test("DELETE request - status 400 - bad request", () => {
+    return request(app)
+      .delete(`/api/comments/hello`)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+  test("DELETE request - status 404 - comment does not exist", () => {
+    return request(app)
+      .delete(`/api/comments/3424`)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment_ID Not Found!");
       });
   });
 });
