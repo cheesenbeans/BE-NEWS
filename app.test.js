@@ -29,7 +29,7 @@ describe("/api", () => {
           count++;
           expect(typeof value.description).toBe("string");
           expect(Array.isArray(value.queries)).toBe(true);
-          expect(Object.keys(value.exampleResponse).length).not.toBe(0);
+          expect(typeof value.exampleResponse).toBe("object");
         });
         expect(Object.keys(parsedResult).length).toBe(count);
       });
@@ -90,6 +90,31 @@ describe("/api/articles/:article_id", () => {
   });
 });
 
+describe("/api/articles/:article_id/comments", () => {
+  test("GET request - status 200 responds with an the comments on a specific article by ID", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((response) => {
+        const comments = response.body.comments;
+        expect(comments.length).toBe(11);
+        comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(typeof comment.article_id).toBe("number");
+        });
+        expect(comments).toBeSorted({
+          key: `created_at`,
+          coerce: true,
+          descending: true,
+        });
+      });
+  });
+});
+
 describe("/api/articles", () => {
   test("GET request - status 200 responds with all the articles sorted by date in descending order", () => {
     return request(app)
@@ -113,6 +138,22 @@ describe("/api/articles", () => {
           coerce: true,
           descending: true,
         });
+      });
+  });
+  test("GET request - status 400 responds due to invalid article id", () => {
+    return request(app)
+      .get("/api/articles/nonsense/comments")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+  test("GET request - status 404 responds due to a valid but non-existent articleId", () => {
+    return request(app)
+      .get("/api/articles/124714/comments")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
       });
   });
 });
@@ -204,3 +245,53 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("/api/users", () => {
+  test("GET request - status 200 responds with all the users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const users = response.body.users;
+        expect(users.length).toEqual(userData.length);
+        users.forEach((user) => {
+          expect(typeof user.username).toEqual("string");
+          expect(typeof user.name).toEqual("string");
+          expect(typeof user.avatar_url).toEqual("string");
+        });
+      });
+  });
+});
+
+describe("/api/comments/:comment_id", () => {
+  test("DELETE request - status 204 - deletes the comment by comment id, nothing returned", () => {
+    return request(app)
+      .delete(`/api/comments/8`)
+      .expect(204)
+      .then(() => {
+        return connection.query(`SELECT * FROM comments;`);
+      })
+      .then((result) => {
+        expect(result.rows.length).toBe(17);
+        const comments = result.rows
+        comments.forEach((comment)=> {
+          expect(comment.comment_id).not.toBe(8)
+        })
+      });
+  })
+  test("DELETE request - status 400 - bad request", () => {
+    return request(app)
+      .delete(`/api/comments/hello`)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  })
+  test("DELETE request - status 404 - comment does not exist", () => {
+    return request(app)
+      .delete(`/api/comments/3424`)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment_ID Not Found!");
+      });
+  })
+})

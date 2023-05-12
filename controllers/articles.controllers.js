@@ -1,6 +1,9 @@
-const { getAllArticles } = require("../models/articles.models");
-const { getArticle } = require("../models/articles.models");
-const { postComment } = require("../models/articles.models");
+const {
+  getArticle,
+  getCommentsByArticle,
+  getAllArticles,
+  postComment,
+} = require("../models/articles.models");
 
 exports.getArticles = (request, response, next) => {
   getAllArticles().then((articles) => {
@@ -25,6 +28,17 @@ exports.postCommentToArticleId = (request, response, next) => {
   postComment(newComment, articleId)
     .then((comment) => {
       response.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getCommentsByArticleId = (request, response, next) => {
+  const articleId = request.params.article_id;
+  getCommentsByArticle(articleId)
+    .then((comments) => {
+      response.status(200).send({ comments: comments });
     })
     .catch((err) => {
       next(err);
