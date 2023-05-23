@@ -56,6 +56,8 @@ exports.doesCommentExist = (comment_id) => {
   .then((result) => {
     if(result.rows.length===0){
       return Promise.reject({status:404, msg:"Comment_ID Not Found!"})
+    } else {
+      return result.rows[0].votes
     }
   });
 };

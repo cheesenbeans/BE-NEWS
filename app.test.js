@@ -428,4 +428,80 @@ describe("/api/comments/:comment_id", () => {
         expect(response.body.msg).toBe("Comment_ID Not Found!");
       });
   });
+  test("PATCH request - status 200 - patches updated votes onto the comment and responds with the comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .expect(200)
+      .send({
+        inc_votes: 1,
+      })
+      .then((result) => {
+        const comment = result.body.comment;
+        expect(comment.body).toBe("Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!");
+        expect(comment.article_id).toBe(9);
+        expect(comment.author).toBe("butter_bridge");
+        expect(comment.votes).toBe(17);
+        expect(Date.parse(comment.created_at)).toEqual(
+          1586179020000 - 60 * 60 * 1000
+        );
+      });
+  });
+  test("PATCH request - status code 400 - non-existent comment id", () => {
+    return request(app)
+      .patch(`/api/comments/hello`)
+      .expect(400)
+      .send({
+        inc_votes: 10,
+      })
+      .then((result) => {
+        const comment = result.body;
+        expect(comment.msg).toBe("Bad Request");
+      });
+  });
+  test("PATCH request - status code 404 - invalid comment id", () => {
+    return request(app)
+      .patch(`/api/comments/23141`)
+      .expect(404)
+      .send({
+        inc_votes: 10,
+      })
+      .then((result) => {
+        const comment = result.body;
+        expect(comment.msg).toBe("Comment_ID Not Found!");
+      });
+  });
+  test("PATCH request - status code 400 - inc_votes is not a number", () => {
+    return request(app)
+      .patch(`/api/comments/2`)
+      .expect(400)
+      .send({
+        inc_votes: "hello",
+      })
+      .then((result) => {
+        const comment = result.body;
+        expect(comment.msg).toBe("Bad Request");
+      });
+  });
 });
+
+describe("/api/users/:username", () => {
+  test("GET request - status 200 responds with a user by username", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then((response) => {
+        const user = response.body.user;
+        expect(user.username).toBe("butter_bridge");
+        expect(user.name).toBe("jonny");
+        expect(user.avatar_url).toBe("https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg");
+      });
+  });
+  test("GET request - status 404 responds due to invalid username", () => {
+    return request(app)
+      .get("/api/users/nonsense")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found!");
+      });
+  });
+})

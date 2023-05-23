@@ -51,7 +51,6 @@ exports.getCommentsByArticleId = (request, response, next) => {
 };
 
 exports.patchArticleWithVotes = (request, response, next) => {
-
   const votes = request.body.inc_votes;
   const articleId = request.params.article_id;
   patchVotes(articleId, votes)

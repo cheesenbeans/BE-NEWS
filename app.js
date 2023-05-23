@@ -3,8 +3,8 @@ const app = express();
 const { getTopics } = require("./controllers/topics.controllers");
 const { getArticles, getArticleById, getCommentsByArticleId, patchArticleWithVotes, postCommentToArticleId} = require("./controllers/articles.controllers");
 const { getApis } = require("./controllers/apis.controllers");
-const { getUsers } = require("./controllers/users.controllers");
-const { deleteComment } = require("./controllers/comments.controllers");
+const { getUsers, getUsersByUsername } = require("./controllers/users.controllers");
+const { deleteComment, patchCommentVotes } = require("./controllers/comments.controllers");
 app.use(express.json())
 
 app.get("/api/topics", getTopics);
@@ -23,7 +23,11 @@ app.post("/api/articles/:article_id/comments", postCommentToArticleId)
 
 app.get("/api/users", getUsers)
 
+app.get("/api/users/:username", getUsersByUsername)
+
 app.delete("/api/comments/:comment_id", deleteComment);
+
+app.patch("/api/comments/:comment_id", patchCommentVotes)
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
