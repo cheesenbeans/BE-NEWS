@@ -15,16 +15,13 @@ exports.getAllArticles = (topic, sort_by = "created_at", order = "desc") => {
       "votes",
       "article_img-url",
     ];
-    if(!validSortQueries.includes(sort_by)){
-      return Promise.reject({status: 400, msg: "Invalid Sort Query!"})
+    if (!validSortQueries.includes(sort_by)) {
+      return Promise.reject({ status: 400, msg: "Invalid Sort Query!" });
     }
 
-    const validOrderQueries = [
-      "desc",
-      "asc",
-    ];
-    if(!validOrderQueries.includes(order)){
-      return Promise.reject({status: 400, msg: "Invalid Order Query!"})
+    const validOrderQueries = ["desc", "asc"];
+    if (!validOrderQueries.includes(order)) {
+      return Promise.reject({ status: 400, msg: "Invalid Order Query!" });
     }
 
     const queryValue = [];
@@ -66,7 +63,29 @@ exports.getAllArticles = (topic, sort_by = "created_at", order = "desc") => {
 
 exports.getArticle = (articleId) => {
   const articleIdArray = [articleId];
-  let queryStr = `SELECT * FROM articles WHERE article_id=$1`;
+  let queryStr = `SELECT
+    COUNT(comment_id) AS comment_count,
+    articles.author,
+    articles.title,
+    articles.article_id,
+    articles.topic,
+    articles.body,
+    articles.created_at,
+    articles.votes,
+    article_img_url
+  FROM articles
+  JOIN comments
+  ON articles.article_id=comments.article_id
+  WHERE articles.article_id = $1
+  GROUP BY
+    articles.author,
+    title,
+    articles.article_id,
+    topic,
+    articles.created_at,
+    articles.votes,
+    article_img_url
+  ORDER BY articles.created_at;`;
   return connection.query(queryStr, articleIdArray).then((result) => {
     if (result.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Not Found!" });
@@ -103,16 +122,17 @@ exports.getCommentsByArticle = (articleId) => {
 };
 
 exports.patchVotes = (articleId, votes) => {
-  return getVotesIfArticleExists(articleId)
-  .then((currentVotes) => {
+  return getVotesIfArticleExists(articleId).then((currentVotes) => {
     const queryStr = `
       UPDATE articles
       SET votes = $1
       WHERE article_id = $2
       RETURNING *
       ;`;
-    return connection.query(queryStr, [(votes+currentVotes), articleId]).then((result) => {
-      return result.rows[0];
-    });
+    return connection
+      .query(queryStr, [votes + currentVotes, articleId])
+      .then((result) => {
+        return result.rows[0];
+      });
   });
 };

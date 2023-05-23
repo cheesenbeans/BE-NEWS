@@ -70,6 +70,7 @@ describe("/api/articles/:article_id", () => {
         expect(article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         );
+        expect(article.comment_count).toBe("11")
       });
   });
   test("GET request - status 400 responds due to invalid article id", () => {
