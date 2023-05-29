@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const { getTopics } = require("./controllers/topics.controllers");
-const { getArticles, getArticleById, getCommentsByArticleId, patchArticleWithVotes, postCommentToArticleId} = require("./controllers/articles.controllers");
+const { postArticle, getArticles, getArticleById, getCommentsByArticleId, patchArticleWithVotes, postCommentToArticleId} = require("./controllers/articles.controllers");
 const { getApis } = require("./controllers/apis.controllers");
 const { getUsers, getUsersByUsername } = require("./controllers/users.controllers");
 const { deleteComment, patchCommentVotes } = require("./controllers/comments.controllers");
@@ -28,6 +28,8 @@ app.get("/api/users/:username", getUsersByUsername)
 app.delete("/api/comments/:comment_id", deleteComment);
 
 app.patch("/api/comments/:comment_id", patchCommentVotes)
+
+app.post("/api/articles", postArticle)
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {

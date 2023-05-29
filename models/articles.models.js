@@ -1,7 +1,6 @@
 const connection = require("../db/connection");
-const { articleData } = require("../db/data/test-data");
 const { getVotesIfArticleExists } = require("../db/seeds/utils");
-const { checkUserExists, checkTopicExists } = require("../db/seeds/utils");
+const { checkTopicExists } = require("../db/seeds/utils");
 
 exports.getAllArticles = (topic, sort_by = "created_at", order = "desc") => {
   return checkTopicExists(topic).then(() => {
@@ -135,4 +134,22 @@ exports.patchVotes = (articleId, votes) => {
         return result.rows[0];
       });
   });
+};
+
+exports.postArticleModel = (newArticle) => {
+  const newArticleQuery = `
+  INSERT INTO articles (author, title, topic, body, article_img_url) 
+  VALUES ($1, $2, $3, $4, $5) 
+  RETURNING *`;
+  return connection
+    .query(newArticleQuery, [
+      newArticle.author,
+      newArticle.title,
+      newArticle.topic,
+      newArticle.body,
+      newArticle.article_img_url,
+    ])
+    .then((result) => {
+      return result.rows[0];
+    });
 };

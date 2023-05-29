@@ -4,6 +4,7 @@ const {
   getAllArticles,
   patchVotes,
   postComment,
+  postArticleModel,
 } = require("../models/articles.models");
 
 exports.getArticles = (request, response, next) => {
@@ -56,6 +57,17 @@ exports.patchArticleWithVotes = (request, response, next) => {
   patchVotes(articleId, votes)
     .then((article) => {
       response.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postArticle = (request, response, next) => {
+  const newArticle = request.body;
+  postArticleModel(newArticle)
+    .then((article) => {
+      response.status(201).send({ article });
     })
     .catch((err) => {
       next(err);

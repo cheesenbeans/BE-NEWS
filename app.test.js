@@ -70,7 +70,7 @@ describe("/api/articles/:article_id", () => {
         expect(article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         );
-        expect(article.comment_count).toBe("11")
+        expect(article.comment_count).toBe("11");
       });
   });
   test("GET request - status 400 responds due to invalid article id", () => {
@@ -247,7 +247,10 @@ describe("/api/articles", () => {
       .get("/api/articles?sort_by=author")
       .expect(200)
       .then((result) => {
-        expect(result.body.articles).toBeSorted({ key: "author", descending: true });
+        expect(result.body.articles).toBeSorted({
+          key: "author",
+          descending: true,
+        });
       });
   });
   test("GET request - status 200 responds with a default sort_by of date", () => {
@@ -255,7 +258,10 @@ describe("/api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then((result) => {
-        expect(result.body.articles).toBeSorted({ key: "created_at", descending: true });
+        expect(result.body.articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
       });
   });
   test("GET request - status 400 responds to an invalid topic", () => {
@@ -271,7 +277,10 @@ describe("/api/articles", () => {
       .get("/api/articles?sort_by=author&order=asc")
       .expect(200)
       .then((result) => {
-        expect(result.body.articles).toBeSorted({ key: "author", descending: false });
+        expect(result.body.articles).toBeSorted({
+          key: "author",
+          descending: false,
+        });
       });
   });
   test("GET request - status 200 responds to a valid sort_by and defaults to descending", () => {
@@ -279,7 +288,10 @@ describe("/api/articles", () => {
       .get("/api/articles?sort_by=author")
       .expect(200)
       .then((result) => {
-        expect(result.body.articles).toBeSorted({ key: "author", descending: true });
+        expect(result.body.articles).toBeSorted({
+          key: "author",
+          descending: true,
+        });
       });
   });
   test("GET request - status 400 responds to a valid sort_by but an invalid order query", () => {
@@ -288,6 +300,46 @@ describe("/api/articles", () => {
       .expect(400)
       .then((result) => {
         expect(result.body.msg).toEqual("Invalid Order Query!");
+      });
+  });
+  test("POST request - status 201 responds with a new article ", () => {
+    return request(app)
+      .post("/api/articles")
+      .expect(201)
+      .send({
+        author: "butter_bridge",
+        title: "hello",
+        body: "this is the body",
+        topic: "mitch",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .then((response) => {
+        const { article } = response.body;
+        expect(article.article_id).toBe(13);
+        expect(article.author).toBe("butter_bridge");
+        expect(article.title).toBe("hello");
+        expect(article.topic).toBe("mitch");
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+        expect(typeof article.created_at).toBe("string");
+        expect(article.votes).toBe(0);
+      });
+  });
+  test("POST request status 400 responds with error status and message invalid for a post request that is missing an element (no body) ", () => {
+    return request(app)
+      .post("/api/articles")
+      .expect(400)
+      .send({
+        author: "butter_bridge",
+        title: "hello",
+        topic: "mitch",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid Post Request");
       });
   });
 });
@@ -379,6 +431,7 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
 describe("/api/users", () => {
   test("GET request - status 200 responds with all the users", () => {
     return request(app)
@@ -437,7 +490,9 @@ describe("/api/comments/:comment_id", () => {
       })
       .then((result) => {
         const comment = result.body.comment;
-        expect(comment.body).toBe("Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!");
+        expect(comment.body).toBe(
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+        );
         expect(comment.article_id).toBe(9);
         expect(comment.author).toBe("butter_bridge");
         expect(comment.votes).toBe(17);
@@ -493,7 +548,9 @@ describe("/api/users/:username", () => {
         const user = response.body.user;
         expect(user.username).toBe("butter_bridge");
         expect(user.name).toBe("jonny");
-        expect(user.avatar_url).toBe("https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg");
+        expect(user.avatar_url).toBe(
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        );
       });
   });
   test("GET request - status 404 responds due to invalid username", () => {
@@ -504,4 +561,4 @@ describe("/api/users/:username", () => {
         expect(response.body.msg).toBe("Not Found!");
       });
   });
-})
+});
