@@ -111,7 +111,7 @@ exports.postComment = (newComment, articleId) => {
 
 exports.getCommentsByArticle = (articleId) => {
   const articleIdArray = [articleId];
-  let queryStr = `SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at`;
+  let queryStr = `SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at DESC`;
   return connection.query(queryStr, articleIdArray).then((result) => {
     if (result.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Not Found!" });
